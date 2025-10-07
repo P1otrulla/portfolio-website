@@ -1,262 +1,263 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Star, Loader2, AlertCircle } from "lucide-react"
+import { useEffect, useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Star, Loader2, MessageCircle, AlertCircle } from "lucide-react";
+import { motion, Variants } from "framer-motion";
+import { Button } from "@/components/ui/button";
 
 interface Review {
-  id: string
-  author: string
-  rating: number
-  text: string
-  date: string
-  verified: boolean
+  id: string;
+  author: string;
+  rating: number;
+  text: string;
+  date: string;
+  verified: boolean;
 }
 
 interface ReviewsResponse {
-  reviews: Review[]
-  source: "trustpilot" | "fallback"
-  message: string
+  reviews: Review[];
+  source: "trustpilot" | "fallback";
+  message: string;
 }
 
 export function ReviewsSection() {
-  const [reviewsData, setReviewsData] = useState<ReviewsResponse | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [isAutoRotating, setIsAutoRotating] = useState(true)
+  const [reviewsData, setReviewsData] = useState<ReviewsResponse | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load Trustpilot widget script
-    const script = document.createElement("script")
-    script.src = "https://widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js"
-    script.async = true
-    document.head.appendChild(script)
-
     const fetchReviews = async () => {
       try {
-        const response = await fetch("/api/reviews")
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-        const data: ReviewsResponse = await response.json()
-        setReviewsData(data)
-        setError(null)
+        const response = await fetch("/api/reviews");
+        const data: ReviewsResponse = await response.json();
+        setReviewsData(data);
       } catch (err) {
-        console.error("Error fetching reviews:", err)
-        setError("Nie udało się załadować recenzji")
-        setReviewsData({
-          reviews: [
-            {
-              id: "1",
-              author: "Anna K.",
-              rating: 5,
-              text: "Profesjonalna współpraca, terminowość i świetna jakość kodu. Polecam!",
-              date: "2024-01-15",
-              verified: true,
-            },
-            {
-              id: "2",
-              author: "Marcin W.",
-              rating: 5,
-              text: "Piotr wykonał dla nas kompleksową stronę e-commerce. Wszystko zgodnie z ustaleniami.",
-              date: "2024-01-10",
-              verified: true,
-            },
-            {
-              id: "3",
-              author: "Katarzyna L.",
-              rating: 4,
-              text: "Bardzo dobra komunikacja i szybka realizacja projektu. Dziękuję!",
-              date: "2024-01-05",
-              verified: true,
-            },
-            {
-              id: "4",
-              author: "Tomasz R.",
-              rating: 5,
-              text: "Nowoczesne rozwiązania i czytelny kod. Współpraca przebiegła bez problemów.",
-              date: "2023-12-28",
-              verified: true,
-            },
-            {
-              id: "5",
-              author: "Magdalena S.",
-              rating: 5,
-              text: "Fantastyczna praca nad naszą aplikacją mobilną. Polecam każdemu!",
-              date: "2023-12-20",
-              verified: true,
-            },
-            {
-              id: "6",
-              author: "Paweł M.",
-              rating: 4,
-              text: "Solidne wykonanie i dobra cena. Na pewno skorzystam ponownie z usług.",
-              date: "2023-12-15",
-              verified: true,
-            },
-          ],
-          source: "fallback",
-          message: "Using sample reviews",
-        })
+        console.error("Error fetching reviews:", err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchReviews()
+    fetchReviews();
+  }, []);
 
-    return () => {
-      // Cleanup script on unmount
-      const existingScript = document.querySelector(
-        'script[src="https://widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js"]',
-      )
-      if (existingScript) {
-        document.head.removeChild(existingScript)
-      }
-    }
-  }, [])
+  const renderStars = (rating: number) =>
+    Array.from({ length: 5 }, (_, i) => (
+      <Star
+        key={i}
+        className={`w-5 h-5 ${i < rating ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200 dark:fill-gray-700 dark:text-gray-700"}`}
+      />
+    ));
 
-  useEffect(() => {
-    if (!isAutoRotating || !reviewsData?.reviews.length) return
+  const cardVariants: Variants = {
+    hidden: {
+      opacity: 0,
+      y: 50,
+      scale: 0.9,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.6,
+        ease: [0.25, 0.4, 0.25, 1] as const,
+      },
+    },
+  };
 
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => {
-        const maxIndex = Math.max(0, reviewsData.reviews.length - 3)
-        return prev >= maxIndex ? 0 : prev + 1
-      })
-    }, 4000) // Change every 4 seconds
+  const containerVariants: Variants = {
+    hidden: { opacity: 1 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.12,
+      },
+    },
+  };
 
-    return () => clearInterval(interval)
-  }, [isAutoRotating, reviewsData?.reviews.length])
-
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <Star key={i} className={`w-4 h-4 ${i < rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"}`} />
-    ))
-  }
-
-  const getCurrentReviews = () => {
-    if (!reviewsData?.reviews.length) return []
-    return reviewsData.reviews.slice(currentIndex, currentIndex + 3)
-  }
-
-  const canNavigate = (reviewsData?.reviews.length || 0) > 3
+  const averageRating = reviewsData?.reviews.length
+    ? (
+        reviewsData.reviews.reduce((acc, review) => acc + review.rating, 0) /
+        reviewsData.reviews.length
+      ).toFixed(1)
+    : "0.0";
 
   return (
-    <section id="reviews" className="py-20 bg-muted/30">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl font-serif font-bold mb-4 text-balance">Opinie Klientów</h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-pretty">
-            Zobacz co mówią o mnie moi klienci i partnerzy biznesowi
-          </p>
-        </div>
-
-        {reviewsData?.source === "fallback" && (
-          <div className="mb-8 flex justify-center">
-            <div className="flex items-center gap-2 bg-yellow-50 text-yellow-800 px-4 py-2 rounded-lg text-sm">
-              <AlertCircle className="w-4 h-4" />
-              <span>API Trustpilot nie działa - pokazuje przykladowe recenzje</span>
-            </div>
-          </div>
-        )}
-
-        {/* Trustpilot Widget */}
-        <div className="mb-16 flex justify-center">
-          <div
-            className="trustpilot-widget"
-            data-locale="pl-PL"
-            data-template-id="5419b6a8b0d04a076446a9ad"
-            data-businessunit-id={process.env.NEXT_PUBLIC_TRUSTPILOT_BUSINESS_UNIT_ID || "YOUR_BUSINESS_UNIT_ID"}
-            data-style-height="24px"
-            data-style-width="100%"
-            data-theme="light"
-            data-min-review-count="10"
-            data-without-reviews-preferred-string-id="1"
-            data-string-id="1"
-          >
-            <a
-              href="https://pl.trustpilot.com/review/piotrulla.dev"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
+    <section
+      id="reviews"
+      className="py-24 bg-gradient-to-b from-background via-muted/20 to-background"
+    >
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <motion.h2
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: false }}
+              className="font-serif text-4xl md:text-5xl font-bold mb-6"
             >
-              Trustpilot
-            </a>
+              Opinie Klientów
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.6 }}
+              viewport={{ once: false }}
+              className="text-muted-foreground text-lg md:text-xl max-w-2xl mx-auto leading-relaxed"
+            >
+              Zobacz co mówią o mnie moi klienci i partnerzy biznesowi
+            </motion.p>
           </div>
-        </div>
 
-        {loading ? (
-          <div className="flex justify-center items-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            <span className="ml-2 text-muted-foreground">Ładowanie recenzji...</span>
-          </div>
-        ) : (
-          <div className="relative">
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-500 ease-in-out">
-              {getCurrentReviews().map((review, index) => (
-                <Card
-                  key={review.id}
-                  className="hover:shadow-lg transition-all duration-300 animate-in fade-in slide-in-from-bottom-4"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-1">{renderStars(review.rating)}</div>
-                      {review.verified && (
-                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                          Zweryfikowana
-                        </span>
-                      )}
+          {!loading && reviewsData && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: false }}
+              className="flex justify-center mb-16"
+            >
+              <Card className="bg-card/80 backdrop-blur-sm border-border/50 shadow-lg">
+                <CardContent className="p-8 text-center">
+                  <div className="flex items-center justify-center gap-4">
+                    <div>
+                      <div className="text-5xl font-bold text-foreground mb-2">
+                        {averageRating}
+                      </div>
+                      <div className="flex items-center gap-1 justify-center mb-2">
+                        {renderStars(Math.round(parseFloat(averageRating)))}
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Na podstawie {reviewsData.reviews.length}{" "}
+                        {reviewsData.reviews.length === 1 ? "opinii" : "opinii"}
+                      </p>
                     </div>
-
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-3">"{review.text}"</p>
-
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-sm">{review.author}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(review.date).toLocaleDateString("pl-PL")}
+                  </div>
+                  {reviewsData.source === "fallback" && (
+                    <div className="mt-4 flex items-center justify-center gap-2 text-xs text-amber-600 dark:text-amber-400">
+                      <AlertCircle className="w-4 h-4" />
+                      <span>
+                        Przykładowe recenzje - skonfiguruj Trustpilot API
                       </span>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
+
+          {loading ? (
+            <div className="flex justify-center items-center py-20 gap-3">
+              <Loader2 className="w-8 h-8 animate-spin text-accent" />
+              <span className="text-muted-foreground text-lg">
+                Ładowanie recenzji z Trustpilot...
+              </span>
             </div>
+          ) : reviewsData?.reviews.length === 0 ? (
+            <div className="text-center py-20">
+              <MessageCircle className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
+              <p className="text-muted-foreground text-lg mb-8">
+                Brak recenzji do wyświetlenia
+              </p>
+            </div>
+          ) : (
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16"
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: false, amount: 0.1 }}
+            >
+              {reviewsData?.reviews.map((review) => (
+                <motion.div key={review.id} variants={cardVariants}>
+                  <motion.div
+                    whileHover={{ y: -8 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                    className="h-full"
+                  >
+                    <Card className="h-full border-border/50 bg-card/60 backdrop-blur-sm shadow-lg hover:shadow-2xl transition-shadow duration-500">
+                      <CardContent className="p-6 flex flex-col h-full">
+                        {/* Rating and Verified Badge */}
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-1">
+                            {renderStars(review.rating)}
+                          </div>
+                          {review.verified && (
+                            <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full font-medium">
+                              ✓ Zweryfikowana
+                            </span>
+                          )}
+                        </div>
 
-            {/* Pagination dots moved to bottom after the reviews grid */}
-            {canNavigate && (
-              <div className="flex justify-center mt-8 gap-2">
-                {Array.from({ length: Math.ceil((reviewsData?.reviews.length || 0) / 3) }, (_, i) => (
-                  <button
-                    key={i}
-                    className={`w-2 h-2 rounded-full transition-colors ${
-                      Math.floor(currentIndex / 3) === i ? "bg-primary" : "bg-muted-foreground/30"
-                    }`}
-                    onClick={() => {
-                      setIsAutoRotating(false)
-                      setCurrentIndex(i * 3)
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        )}
+                        <p className="text-sm text-muted-foreground mb-6 flex-grow leading-relaxed">
+                          "{review.text}"
+                        </p>
 
-        {/* Call to Action */}
-        <div className="text-center mt-12">
-          <p className="text-muted-foreground mb-4">Współpracowałeś ze mną? Podziel się swoją opinią!</p>
-          <a
-            href="https://pl.trustpilot.com/review/piotrulla.dev"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors"
+                        <div className="flex items-center justify-between pt-4 border-t border-border/50">
+                          <span className="font-semibold text-foreground">
+                            {review.author}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(review.date).toLocaleDateString("pl-PL", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            })}
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: false }}
+            className="relative overflow-hidden"
           >
-            Dodaj opinię na Trustpilot
-          </a>
+            <div className="absolute inset-0 bg-gradient-to-br from-accent/10 via-accent/5 to-transparent rounded-3xl" />
+            <Card className="relative border-border/50 bg-card/80 backdrop-blur-sm shadow-xl">
+              <CardContent className="text-center p-12 md:p-16">
+                <MessageCircle className="w-16 h-16 text-accent mx-auto mb-6" />
+                <h3 className="font-serif text-3xl md:text-4xl font-bold mb-6">
+                  Współpracowałeś ze mną?
+                </h3>
+                <p className="text-muted-foreground text-base md:text-lg mb-10 max-w-2xl mx-auto leading-relaxed">
+                  Twoja opinia jest dla mnie bardzo ważna! Podziel się swoimi
+                  doświadczeniami ze współpracy na Trustpilot.
+                </p>
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Button
+                    size="lg"
+                    className="bg-gradient-to-r from-accent to-accent/80 hover:from-accent/90 hover:to-accent/70 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                    asChild
+                  >
+                    <a
+                      href="https://pl.trustpilot.com/evaluate/piotrulla.dev"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Star className="mr-2 w-5 h-5" />
+                      Dodaj opinię na Trustpilot
+                    </a>
+                  </Button>
+                </motion.div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
       </div>
     </section>
-  )
+  );
 }
