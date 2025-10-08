@@ -75,9 +75,7 @@ export function Footer() {
     <footer className="border-t border-border/40 bg-muted/20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto py-12">
-          {/* Główna zawartość */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
-            {/* Brand */}
             <div className="lg:col-span-2">
               <h3 className="font-serif text-2xl font-bold mb-4">
                 piotrulla.dev
@@ -108,7 +106,6 @@ export function Footer() {
               </div>
             </div>
 
-            {/* Nawigacja */}
             <div>
               <h4 className="font-semibold mb-4">Nawigacja</h4>
               <nav className="flex flex-col gap-2">
@@ -124,7 +121,6 @@ export function Footer() {
               </nav>
             </div>
 
-            {/* Kontakt */}
             <div>
               <h4 className="font-semibold mb-4">Kontakt</h4>
               <div className="space-y-2">
@@ -141,7 +137,6 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Stopka */}
           <div className="border-t border-border/40 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground">
               © {currentYear} Piotr "Piotrulla" Zych. Wszelkie prawa
