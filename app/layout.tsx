@@ -1,47 +1,43 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { GeistSans } from "geist/font/sans"
-import { GeistMono } from "geist/font/mono"
-import { Playfair_Display, Source_Sans_3 as Source_Sans_Pro } from "next/font/google"
-import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
+import type { ReactNode } from "react";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
+import { CookieConsent } from "@/components/cookie-consent";
 
-const playfairDisplay = Playfair_Display({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-playfair",
-})
-
-const sourceSansPro = Source_Sans_Pro({
+const inter = Inter({
   subsets: ["latin"],
   weight: ["400", "600", "700"],
   display: "swap",
-  variable: "--font-source-sans",
-})
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
-  title: 'piotrulla.dev',
-  description: 'Piotrulla Java Software Engineer',
-  generator: "v0.app",
-}
+  title: "piotrulla.dev",
+  description: "Piotrulla Java Software Engineer",
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: ReactNode;
 }>) {
   return (
-    <html lang="pl" suppressHydrationWarning>
+    <html lang="pl" suppressHydrationWarning className={inter.variable}>
       <head>
         <link rel="preconnect" href="https://widget.trustpilot.com" />
       </head>
-      <body
-        className={`font-source-sans ${GeistSans.variable} ${GeistMono.variable} ${playfairDisplay.variable} ${sourceSansPro.variable} antialiased`}
-      >
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+      <body className={`${inter.className} antialiased`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
           {children}
+          <CookieConsent />
         </ThemeProvider>
       </body>
     </html>
-  )
+  );
 }
