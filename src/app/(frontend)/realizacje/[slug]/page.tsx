@@ -121,7 +121,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         <img
           src={cover.url}
           alt={cover.alt}
-          className="mt-10 max-h-[640px] w-full rounded-lg border border-rule object-cover"
+          className="mt-10 aspect-[2/1] w-full max-w-[860px] rounded-lg border border-rule object-cover"
           style={{ objectPosition: objectPosition(cover) }}
         />
       )}
