@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { SiteSetting } from "@/payload-types";
 import { CATEGORY_QUERY_PARAM, PROJECT_CATEGORY, PROJECT_CATEGORY_SLUG, SECTION_ID } from "@/lib/constants";
 import { buttonClass } from "@/components/ui/button";
-import { Schematic } from "./schematic";
+import { Schematic } from "./schematic/schematic";
 
 const projectsHref = (slug: string) => `/?${CATEGORY_QUERY_PARAM}=${slug}#${SECTION_ID.PROJECTS}`;
 
@@ -36,7 +36,7 @@ export function Hero({ settings }: { readonly settings: SiteSetting }) {
       </div>
 
       <div className="relative mx-auto w-full max-w-[540px] rounded-xl border border-rule bg-surface p-3 sm:p-5">
-        <Schematic className="h-auto w-full" />
+        <Schematic className="w-full" />
       </div>
     </section>
   );

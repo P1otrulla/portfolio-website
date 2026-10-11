@@ -249,3 +249,85 @@
     display: none;
   }
 }
+
+/* ——— Interakcja schematu ——— */
+@keyframes flow {
+  to {
+    stroke-dashoffset: -11;
+  }
+}
+@keyframes led-blink {
+  50% {
+    opacity: 0.25;
+  }
+}
+
+.schematic .wire-base {
+  transition: opacity 0.25s ease;
+}
+.schematic .flow {
+  stroke-dasharray: 2 9;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+.schematic .flow-on {
+  opacity: 0.95;
+  animation: flow 0.8s linear infinite;
+}
+.schematic .control {
+  cursor: pointer;
+  outline: none;
+}
+.schematic .focus-ring {
+  fill: transparent;
+  stroke: var(--wire-n);
+  stroke-width: 1.25;
+  stroke-dasharray: 3 3;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.schematic .control:hover .focus-ring {
+  opacity: 0.5;
+}
+.schematic .control:focus-visible .focus-ring {
+  opacity: 1;
+}
+.schematic .lever {
+  transition: transform 0.22s cubic-bezier(0.3, 0, 0.2, 1.4);
+}
+.schematic .load {
+  transition: opacity 0.25s ease;
+}
+.schematic .lamp-glow {
+  fill: var(--pe-yellow);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.schematic .lamp-glow-on {
+  opacity: 0.28;
+}
+.schematic .socket-fill {
+  fill: var(--pe-yellow);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.schematic .socket-live {
+  opacity: 0.35;
+}
+.schematic .led-blink {
+  animation: led-blink 1.4s steps(2, jump-none) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .schematic .flow-on {
+    animation: none;
+    opacity: 0;
+  }
+  .schematic .led-blink {
+    animation: none;
+  }
+  .schematic .lever {
+    transition: none;
+  }
+}
