@@ -46,6 +46,8 @@ const DIMMED_OPACITY = 0.28;
 const DIMMED_LOAD_OPACITY = 0.55;
 const INTRO_DURATION_MS = 3_600;
 const SHORT_CIRCUIT_TRIP_DELAY_MS = 160;
+/** Oznaczenie trzech faz pojawia się na końcu rysowania – po przewodach, odbiornikach i tabliczce. */
+const THREE_PHASE_MARK_DELAY_S = 3.6;
 const LABEL_CLASS = "fill-ink-soft";
 const LABEL_STYLE: CSSProperties = { fontSize: 13.5, letterSpacing: "0.01em" };
 const SMALL_LABEL_STYLE: CSSProperties = { fontSize: 12.5, letterSpacing: "0.01em" };
@@ -484,7 +486,11 @@ export function Schematic({ circuits: circuitInputs, className }: SchematicProps
               ) : (
                 <Wire d={`M${x} ${BREAKER_BOTTOM} V${loadTop}`} live={live} flowing={isIntroDone} delaySeconds={2.4 + index * 0.1} stroke={PHASE} />
               )}
-              {isThreePhase(circuit) && <ThreePhaseMark x={x} y={(BREAKER_BOTTOM + loadTop) / 2} />}
+              {isThreePhase(circuit) && (
+                <g className="symbol" style={delay(THREE_PHASE_MARK_DELAY_S)}>
+                  <ThreePhaseMark x={x} y={(BREAKER_BOTTOM + loadTop) / 2} />
+                </g>
+              )}
 
               <g className="symbol" style={delay(2.9 + index * 0.1)} {...hintHandlers(circuit.description, setHint)}>
                 <rect x={x - 36} y={loadTop - 8} width="72" height={LOAD_LABEL_Y - loadTop + 14} className="hover-area" />
