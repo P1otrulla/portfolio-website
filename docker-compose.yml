@@ -31,12 +31,43 @@ services:
       PAYLOAD_SECRET: ${PAYLOAD_SECRET:-lokalny-sekret-tylko-do-podgladu-zmien-na-produkcji}
       SITE_URL: ${SITE_URL:-http://localhost:3000}
       GOOGLE_PLACES_API_KEY: ${GOOGLE_PLACES_API_KEY:-}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
       SEED_ON_INIT: ${SEED_ON_INIT:-true}
     volumes:
       - media:/app/media
     ports:
       - "3000:3000"
 
+  # Analityka bez cookies: http://localhost:3001 (pierwsze logowanie: admin / umami – zmień hasło!)
+  umami:
+    image: ghcr.io/umami-software/umami:latest
+    restart: unless-stopped
+    init: true
+    depends_on:
+      umami-db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://umami:umami@umami-db:5432/umami
+      APP_SECRET: ${UMAMI_APP_SECRET:-lokalny-sekret-umami-zmien-na-produkcji}
+    ports:
+      - "3001:3000"
+
+  umami-db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: umami
+      POSTGRES_PASSWORD: umami
+      POSTGRES_DB: umami
+    volumes:
+      - umami-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U umami -d umami"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
 volumes:
   pgdata:
   media:
+  umami-pgdata:

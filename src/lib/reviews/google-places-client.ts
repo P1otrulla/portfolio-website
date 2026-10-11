@@ -1,5 +1,6 @@
 import "server-only";
 import { z } from "zod";
+import { TtlCache } from "@/lib/cache/ttl-cache";
 
 const PLACES_ENDPOINT = "https://places.googleapis.com/v1/places";
 const FIELD_MASK = "rating,userRatingCount,reviews,googleMapsUri";
@@ -51,39 +52,26 @@ export interface GooglePlaceReviews {
   readonly reviews: readonly GoogleReview[];
 }
 
-interface CacheEntry {
-  readonly value: GooglePlaceReviews;
-  readonly expiresAt: number;
-}
-
 /**
  * Klient Places API (New). Google zwraca maksymalnie 5 opinii („najbardziej trafne”),
  * dlatego wynik łączymy z ręcznymi opiniami z CMS. Wynik trzymamy w pamięci przez TTL,
  * żeby nie płacić za każde wejście na stronę.
  */
 export class GooglePlacesClient {
-  private readonly cache = new Map<string, CacheEntry>();
+  private readonly cache: TtlCache<string, GooglePlaceReviews>;
 
   constructor(
     private readonly apiKey: string,
-    private readonly cacheTtlMs: number,
+    cacheTtlMs: number,
   ) {
     if (!apiKey) {
       throw new Error("GooglePlacesClient wymaga klucza API.");
     }
-    if (cacheTtlMs <= 0) {
-      throw new Error("cacheTtlMs musi być dodatnie.");
-    }
+    this.cache = new TtlCache(cacheTtlMs);
   }
 
-  async getPlaceReviews(placeId: string): Promise<GooglePlaceReviews> {
-    const cached = this.cache.get(placeId);
-    if (cached && cached.expiresAt > Date.now()) {
-      return cached.value;
-    }
-    const value = await this.fetchPlaceReviews(placeId);
-    this.cache.set(placeId, { value, expiresAt: Date.now() + this.cacheTtlMs });
-    return value;
+  getPlaceReviews(placeId: string): Promise<GooglePlaceReviews> {
+    return this.cache.getOrLoad(placeId, () => this.fetchPlaceReviews(placeId));
   }
 
   private async fetchPlaceReviews(placeId: string): Promise<GooglePlaceReviews> {

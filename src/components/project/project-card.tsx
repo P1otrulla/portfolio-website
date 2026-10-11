@@ -4,6 +4,7 @@ import { PROJECT_CATEGORY, PROJECT_CATEGORY_LABEL, ROUTES, type ProjectCategory 
 import { objectPosition } from "@/lib/media";
 import type { ProjectCardData } from "@/lib/projects/project-card";
 import { cn } from "@/lib/utils";
+import { ProjectStatsInline } from "./project-stats";
 
 const MAX_VISIBLE_TAGS = 4;
 
@@ -74,14 +75,19 @@ export function ProjectCard({ project, wide = false }: { readonly project: Proje
           </Link>
         </h3>
         <p className="mt-2 text-[0.97rem] text-ink-soft">{project.summary}</p>
-        {visibleTags.length > 0 && (
-          <ul className="mt-auto flex flex-wrap gap-1.5 pt-5" aria-label="Technologie i materiały">
-            {visibleTags.map((tag) => (
-              <li key={tag} className="rounded border border-rule px-2 py-0.5 text-[0.8rem] text-ink-soft">
-                {tag}
-              </li>
-            ))}
-          </ul>
+        {(project.stats || visibleTags.length > 0) && (
+          <div className="mt-auto space-y-3 pt-5">
+            {project.stats && <ProjectStatsInline stats={project.stats} />}
+            {visibleTags.length > 0 && (
+              <ul className="flex flex-wrap gap-1.5" aria-label="Technologie i materiały">
+                {visibleTags.map((tag) => (
+                  <li key={tag} className="rounded border border-rule px-2 py-0.5 text-[0.8rem] text-ink-soft">
+                    {tag}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         )}
       </div>
       <span className="pointer-events-none absolute inset-0 rounded-lg ring-2 ring-transparent transition group-has-[:focus-visible]:ring-wire-n" />

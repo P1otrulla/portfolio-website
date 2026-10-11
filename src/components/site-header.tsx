@@ -4,7 +4,7 @@ import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { ROUTES, SECTION_ID } from "@/lib/constants";
+import { ANALYTICS_EVENT, ROUTES, SECTION_ID } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { buttonClass } from "./ui/button";
 import { ThemeToggle } from "./theme-toggle";
@@ -71,7 +71,11 @@ export function SiteHeader({ showReviews }: { readonly showReviews: boolean }) {
 
         <div className="flex items-center gap-1">
           <ThemeToggle />
-          <Link href={`/#${SECTION_ID.CONTACT}`} className={buttonClass("solid", "ml-2 hidden px-4 py-2 sm:inline-flex")}>
+          <Link
+            href={`/#${SECTION_ID.CONTACT}`}
+            className={buttonClass("solid", "ml-2 hidden px-4 py-2 sm:inline-flex")}
+            data-umami-event={ANALYTICS_EVENT.HEADER_QUOTE}
+          >
             Zapytaj o wycenę
           </Link>
           <button

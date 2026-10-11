@@ -47,6 +47,29 @@ npm run dev
 Google zwraca średnią ocen, liczbę opinii i maks. 5 opinii – są łączone z opiniami ręcznymi i cache'owane na 6 h.
 Przycisk „Wystaw opinię w Google” pojawia się automatycznie, gdy jest ustawione Place ID (działa nawet bez klucza API).
 
+## Analityka (Umami)
+
+`docker compose up` uruchamia też Umami na http://localhost:3001.
+
+1. Zaloguj się (`admin` / `umami`) i **od razu zmień hasło**.
+2. Settings → Websites → Add website (np. „piotrulla.dev”), skopiuj **Website ID**.
+3. Panel strony → Ustawienia strony → Analityka → wklej Website ID (adres skryptu lokalnie: `http://localhost:3001/script.js`).
+
+Umami nie używa cookies, więc baner zgody nie jest potrzebny. Kliknięcia w ważne przyciski (wycena, formularz,
+zwarcie na schemacie, linki do kodu) liczą się jako zdarzenia – nazwy są w `ANALYTICS_EVENT` w `src/lib/constants.ts`.
+
+## Statystyki projektów (GitHub / Modrinth)
+
+Przy projektach programistycznych strona sama pobiera gwiazdki i forki z GitHuba (z pola „Repozytorium”)
+oraz pobrania z Modrinth (gdy „Prezentacja” to link do modrinth.com). Wyniki są cache'owane na godzinę.
+Bez tokena GitHub pozwala na 60 zapytań/h – wystarczy, ale możesz dodać `GITHUB_TOKEN` w `.env`.
+
+## Mapa realizacji
+
+Realizacje elektryczne z wpisaną miejscowością pojawiają się na mapie w sekcji Realizacje. Współrzędne
+uzupełniają się same przy zapisie (OpenStreetMap / Nominatim) – możesz je poprawić w panelu, w bocznym polu
+„Pinezka na mapie”. Na mapie jest tylko miejscowość, bez adresu.
+
 ## Zmiany w modelu danych
 
 Po zmianie kolekcji w `src/cms/**`:

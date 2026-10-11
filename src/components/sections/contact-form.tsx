@@ -3,7 +3,7 @@
 import { CheckCircle2, Code2, Zap } from "lucide-react";
 import { useActionState, useEffect, useState, type ReactNode } from "react";
 import { submitInquiry } from "@/app/(frontend)/actions/contact";
-import { PROJECT_CATEGORY, PROJECT_CATEGORY_LABEL, type ProjectCategory } from "@/lib/constants";
+import { ANALYTICS_EVENT, PROJECT_CATEGORY, PROJECT_CATEGORY_LABEL, type ProjectCategory } from "@/lib/constants";
 import { CONTACT_FIELD, INITIAL_CONTACT_STATE, type ContactFieldErrors } from "@/lib/contact/contact-schema";
 import { cn } from "@/lib/utils";
 import { buttonClass } from "@/components/ui/button";
@@ -149,7 +149,7 @@ export function ContactForm({ initialCategory }: { readonly initialCategory: Pro
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-ink-soft">Dane wykorzystam tylko do odpowiedzi na zapytanie.</p>
-        <button type="submit" disabled={isPending} className={buttonClass("solid")}>
+        <button type="submit" disabled={isPending} className={buttonClass("solid")} data-umami-event={ANALYTICS_EVENT.CONTACT_SUBMIT}>
           {isPending ? "Wysyłanie…" : "Wyślij zapytanie"}
         </button>
       </div>

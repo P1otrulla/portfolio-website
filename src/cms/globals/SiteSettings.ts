@@ -169,6 +169,26 @@ export const SiteSettings: GlobalConfig = {
           ],
         },
         {
+          label: "Analityka",
+          description:
+            "Statystyki odwiedzin z Umami (bez cookies). Website ID znajdziesz w panelu Umami: Settings → Websites → Edit.",
+          fields: [
+            {
+              name: "umamiWebsiteId",
+              type: "text",
+              label: "Umami Website ID",
+              admin: { description: "Puste = analityka wyłączona." },
+            },
+            {
+              name: "umamiScriptUrl",
+              type: "text",
+              label: "Adres skryptu Umami",
+              defaultValue: "http://localhost:3001/script.js",
+              admin: { description: "Na produkcji np. https://stats.piotrulla.dev/script.js" },
+            },
+          ],
+        },
+        {
           label: "SEO",
           fields: [
             { name: "seoTitle", type: "text", label: "Tytuł strony", required: true },

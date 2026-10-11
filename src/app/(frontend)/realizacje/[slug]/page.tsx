@@ -7,8 +7,11 @@ import { BeforeAfter } from "@/components/project/before-after";
 import { Gallery, type GalleryItem } from "@/components/project/gallery";
 import { CategoryMark } from "@/components/project/project-card";
 import { ButtonLink, ExternalLink, buttonClass } from "@/components/ui/button";
+import { projectStatsFacts } from "@/components/project/project-stats";
 import { getProjectBySlug } from "@/lib/cms/queries";
+import { getProjectStats } from "@/lib/project-stats/project-stats-service";
 import {
+  ANALYTICS_EVENT,
   CATEGORY_QUERY_PARAM,
   PROJECT_CATEGORY,
   PROJECT_CATEGORY_SLUG,
@@ -47,10 +50,12 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
   const before = resolveImage(project.beforeAfter?.before, "wide");
   const after = resolveImage(project.beforeAfter?.after, "wide");
   const dateLabel = formatMonthYear(project.completedAt);
+  const stats = await getProjectStats(project);
   const facts = [
     ...(isNonEmpty(project.location) ? [{ label: "Miejscowość", value: project.location }] : []),
     ...(dateLabel ? [{ label: "Termin", value: dateLabel }] : []),
     ...(project.facts ?? []).map((fact) => ({ label: fact.label, value: fact.value })),
+    ...(stats ? projectStatsFacts(stats) : []),
   ];
   const galleryItems: GalleryItem[] = (project.gallery ?? []).flatMap((entry) => {
     const thumb = resolveImage(entry.image, "card");
@@ -76,13 +81,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           {(project.links?.repository || project.links?.demo) && (
             <div className="mt-7 flex flex-wrap gap-3">
               {isNonEmpty(project.links?.repository) && (
-                <ExternalLink href={project.links.repository} className={buttonClass("outline")}>
+                <ExternalLink href={project.links.repository} className={buttonClass("outline")} data-umami-event={ANALYTICS_EVENT.PROJECT_REPOSITORY}>
                   <Github size={17} aria-hidden="true" />
                   Kod źródłowy
                 </ExternalLink>
               )}
               {isNonEmpty(project.links?.demo) && (
-                <ExternalLink href={project.links.demo} className={buttonClass("outline")}>
+                <ExternalLink href={project.links.demo} className={buttonClass("outline")} data-umami-event={ANALYTICS_EVENT.PROJECT_DEMO}>
                   <ExternalIcon size={17} aria-hidden="true" />
                   Prezentacja
                 </ExternalLink>
@@ -155,7 +160,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         <p className="heading text-xl">
           {isElectrical ? "Planujesz podobną instalację?" : "Potrzebujesz podobnego rozwiązania?"}
         </p>
-        <ButtonLink href={contactHref}>Zapytaj o wycenę</ButtonLink>
+        <ButtonLink href={contactHref} data-umami-event={ANALYTICS_EVENT.PROJECT_QUOTE}>Zapytaj o wycenę</ButtonLink>
       </section>
     </main>
   );

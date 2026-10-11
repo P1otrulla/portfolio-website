@@ -11,6 +11,7 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from "react";
+import { ANALYTICS_EVENT } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import {
   ELEMENT_DESCRIPTION,
@@ -532,6 +533,7 @@ export function Schematic({ circuits: circuitInputs, className }: SchematicProps
             <button
               type="button"
               onClick={simulateShortCircuit}
+              data-umami-event={ANALYTICS_EVENT.SCHEMATIC_SHORT_CIRCUIT}
               disabled={!isCircuitLive(board, shortTarget.id)}
               className="inline-flex items-center gap-1.5 rounded-md border border-rule px-3 py-1.5 text-sm font-medium text-ink transition-colors hover:border-ink disabled:cursor-not-allowed disabled:opacity-45"
             >

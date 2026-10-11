@@ -11,6 +11,7 @@ export interface SeedProject {
   readonly featured?: boolean;
   readonly location?: string;
   readonly facts?: readonly { readonly label: string; readonly value: string }[];
+  readonly geo?: { readonly lat: number; readonly lng: number };
   readonly links?: { readonly repository?: string; readonly demo?: string };
 }
 
@@ -73,6 +74,8 @@ export const SEED_SETTINGS = Object.freeze({
   linkedinUrl: "https://linkedin.com/in/piotrulla/",
   discordUrl: "https://discord.com/users/719653565026664628",
   googlePlaceId: "",
+  umamiWebsiteId: "",
+  umamiScriptUrl: "http://localhost:3001/script.js",
   seoTitle: "Piotr Zych – instalacje elektryczne i programowanie",
   seoDescription:
     "Instalacje elektryczne w domach jednorodzinnych oraz pluginy do Minecrafta i aplikacje webowe. Zobacz realizacje i napisz po wycenę.",
@@ -154,7 +157,8 @@ export const SEED_PROJECTS: readonly SeedProject[] = Object.freeze([
     ],
     tags: ["YDY 3×2,5", "Rozdzielnica 4×18", "RCD 30 mA"],
     featured: true,
-    location: "Miejscowość",
+    location: "Warszawa",
+    geo: { lat: 52.23, lng: 21.012 },
     facts: [
       { label: "Powierzchnia", value: "140 m²" },
       { label: "Obwody", value: "22" },
@@ -167,7 +171,8 @@ export const SEED_PROJECTS: readonly SeedProject[] = Object.freeze([
     summary: "Przykładowy wpis pokazujący mniejszą realizację. Edytuj albo usuń w panelu.",
     body: ["Stara rozdzielnica z bezpiecznikami topikowymi zastąpiona nową, z wyłącznikiem różnicowoprądowym i opisanymi obwodami."],
     tags: ["Wyłączniki B16/B10", "RCD"],
-    location: "Miejscowość",
+    location: "Legionowo",
+    geo: { lat: 52.401, lng: 20.926 },
     facts: [
       { label: "Obwody", value: "12" },
       { label: "Czas realizacji", value: "1 dzień" },

@@ -66,3 +66,15 @@ export const SECTION_ID = {
 export const RATING = { MIN: 1, MAX: 5 } as const;
 
 export const SITE_URL = process.env.SITE_URL ?? "http://localhost:3000";
+
+/** Nazwy zdarzeń Umami (atrybut data-umami-event) – jedno miejsce, żeby raporty miały spójne nazwy. */
+export const ANALYTICS_EVENT = {
+  HERO_ELECTRICAL: "Hero: instalacje",
+  HERO_SOFTWARE: "Hero: programowanie",
+  HEADER_QUOTE: "Nagłówek: zapytaj o wycenę",
+  CONTACT_SUBMIT: "Formularz: wyślij",
+  SCHEMATIC_SHORT_CIRCUIT: "Schemat: zwarcie",
+  PROJECT_REPOSITORY: "Projekt: kod źródłowy",
+  PROJECT_DEMO: "Projekt: prezentacja",
+  PROJECT_QUOTE: "Projekt: zapytaj o wycenę",
+} as const;

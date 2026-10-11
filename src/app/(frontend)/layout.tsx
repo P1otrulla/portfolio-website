@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/archivo/standard.css";
+import Script from "next/script";
 import type { ReactNode } from "react";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SiteFooter } from "@/components/site-footer";
@@ -45,6 +46,10 @@ export default async function FrontendLayout({ children }: Readonly<{ children: 
           <div id="tresc">{children}</div>
           <SiteFooter settings={settings} />
         </ThemeProvider>
+        {isNonEmpty(settings.umamiWebsiteId) && isNonEmpty(settings.umamiScriptUrl) && (
+          // Umami nie używa cookies – nie potrzeba banera zgody.
+          <Script src={settings.umamiScriptUrl} data-website-id={settings.umamiWebsiteId} strategy="afterInteractive" />
+        )}
       </body>
     </html>
   );

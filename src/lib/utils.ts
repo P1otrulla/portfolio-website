@@ -29,3 +29,10 @@ export function pluralizePl(count: number, one: string, few: string, many: strin
   const isFew = lastDigit >= 2 && lastDigit <= 4 && (lastTwoDigits < 12 || lastTwoDigits > 14);
   return isFew ? few : many;
 }
+
+const COMPACT_NUMBER_FORMAT = new Intl.NumberFormat("pl-PL", { notation: "compact", maximumFractionDigits: 1 });
+
+/** 12345 → „12,3 tys.” */
+export function formatCompactNumber(value: number): string {
+  return COMPACT_NUMBER_FORMAT.format(value);
+}

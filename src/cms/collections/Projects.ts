@@ -9,6 +9,7 @@ import {
   ROUTES,
   type ProjectCategory,
 } from "@/lib/constants";
+import { geocodeLocation } from "@/cms/hooks/geocode-location";
 import { revalidateSite } from "@/cms/hooks/revalidate";
 
 const SUMMARY_MAX_LENGTH = 240;
@@ -38,6 +39,7 @@ export const Projects: CollectionConfig = {
     delete: isAuthenticated,
   },
   hooks: {
+    beforeChange: [geocodeLocation],
     afterChange: [revalidateSite],
     afterDelete: [revalidateSite],
   },
@@ -162,6 +164,26 @@ export const Projects: CollectionConfig = {
       ],
     },
     slugField("title"),
+    {
+      name: "geo",
+      type: "group",
+      label: "Pinezka na mapie",
+      admin: {
+        position: "sidebar",
+        condition: whenCategory(PROJECT_CATEGORY.ELECTRICAL),
+        description:
+          "Uzupełnia się sama z miejscowości przy zapisie. Możesz poprawić ręcznie – zostanie, dopóki nie zmienisz miejscowości.",
+      },
+      fields: [
+        {
+          type: "row",
+          fields: [
+            { name: "lat", type: "number", label: "Szer. (lat)", min: -90, max: 90 },
+            { name: "lng", type: "number", label: "Dł. (lng)", min: -180, max: 180 },
+          ],
+        },
+      ],
+    },
     {
       name: "featured",
       type: "checkbox",

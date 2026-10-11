@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { SiteSetting } from "@/payload-types";
-import { CATEGORY_QUERY_PARAM, PROJECT_CATEGORY, PROJECT_CATEGORY_SLUG, SECTION_ID } from "@/lib/constants";
+import { ANALYTICS_EVENT, CATEGORY_QUERY_PARAM, PROJECT_CATEGORY, PROJECT_CATEGORY_SLUG, SECTION_ID } from "@/lib/constants";
 import { buttonClass } from "@/components/ui/button";
 import { Schematic } from "./schematic/schematic";
 
@@ -14,11 +14,11 @@ export function Hero({ settings }: { readonly settings: SiteSetting }) {
         <p className="mt-6 max-w-[58ch] text-[1.12rem] leading-relaxed text-ink-soft">{settings.heroLead}</p>
 
         <div className="mt-9 flex flex-col gap-3 sm:flex-row">
-          <Link href={projectsHref(PROJECT_CATEGORY_SLUG[PROJECT_CATEGORY.ELECTRICAL])} className={buttonClass("solid")}>
+          <Link href={projectsHref(PROJECT_CATEGORY_SLUG[PROJECT_CATEGORY.ELECTRICAL])} className={buttonClass("solid")} data-umami-event={ANALYTICS_EVENT.HERO_ELECTRICAL}>
             <span className="wire wire-electrical" aria-hidden="true" />
             Instalacje elektryczne
           </Link>
-          <Link href={projectsHref(PROJECT_CATEGORY_SLUG[PROJECT_CATEGORY.SOFTWARE])} className={buttonClass("outline")}>
+          <Link href={projectsHref(PROJECT_CATEGORY_SLUG[PROJECT_CATEGORY.SOFTWARE])} className={buttonClass("outline")} data-umami-event={ANALYTICS_EVENT.HERO_SOFTWARE}>
             <span className="wire wire-software" aria-hidden="true" />
             Projekty programistyczne
           </Link>

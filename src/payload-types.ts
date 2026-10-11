@@ -195,6 +195,13 @@ export interface Project {
    */
   slug?: string | null;
   /**
+   * Uzupełnia się sama z miejscowości przy zapisie. Możesz poprawić ręcznie – zostanie, dopóki nie zmienisz miejscowości.
+   */
+  geo?: {
+    lat?: number | null;
+    lng?: number | null;
+  };
+  /**
    * Większy kafelek na początku listy.
    */
   featured?: boolean | null;
@@ -431,6 +438,12 @@ export interface ProjectsSelect<T extends boolean = true> {
         demo?: T;
       };
   slug?: T;
+  geo?:
+    | T
+    | {
+        lat?: T;
+        lng?: T;
+      };
   featured?: T;
   completedAt?: T;
   updatedAt?: T;
@@ -642,6 +655,14 @@ export interface SiteSetting {
    * ID wizytówki Google (zaczyna się zwykle od „ChIJ”). Klucz API ustawiasz w zmiennej GOOGLE_PLACES_API_KEY.
    */
   googlePlaceId?: string | null;
+  /**
+   * Puste = analityka wyłączona.
+   */
+  umamiWebsiteId?: string | null;
+  /**
+   * Na produkcji np. https://stats.piotrulla.dev/script.js
+   */
+  umamiScriptUrl?: string | null;
   seoTitle: string;
   seoDescription: string;
   updatedAt?: string | null;
@@ -697,6 +718,8 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   linkedinUrl?: T;
   discordUrl?: T;
   googlePlaceId?: T;
+  umamiWebsiteId?: T;
+  umamiScriptUrl?: T;
   seoTitle?: T;
   seoDescription?: T;
   updatedAt?: T;

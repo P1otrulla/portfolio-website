@@ -36,7 +36,18 @@ export default async function PrivacyPolicyPage() {
             .
           </p>
 
-          <h2>Pliki cookies</h2>
+          <h2>Mapa realizacji</h2>
+          <p>
+            Mapa ładuje kafelki z serwerów CARTO na podstawie danych OpenStreetMap, więc Twoja przeglądarka łączy się
+            wtedy z tymi serwerami. Na mapie pokazuję wyłącznie miejscowości, nigdy adresy klientów.
+          </p>
+
+          <h2>Statystyki odwiedzin i pliki cookies</h2>
+          <p>
+            Do liczenia odwiedzin używam Umami – narzędzia uruchomionego na moim serwerze, które nie zapisuje cookies,
+            nie śledzi Cię między stronami i nie przechowuje adresu IP. Widzę jedynie zbiorcze dane: liczbę wejść,
+            odwiedzane podstrony, źródło wejścia oraz typ urządzenia i przeglądarki.
+          </p>
           <p>
             Strona nie używa cookies analitycznych ani reklamowych. W pamięci przeglądarki zapisuje się jedynie wybrany
             motyw (jasny lub ciemny).

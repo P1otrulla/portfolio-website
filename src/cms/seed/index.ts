@@ -50,6 +50,7 @@ async function createProject(payload: Payload, project: SeedProject): Promise<vo
       location: project.location,
       facts: project.facts?.map((fact) => ({ ...fact })),
       links: project.links ? { ...project.links } : undefined,
+      geo: project.geo ? { ...project.geo } : undefined,
       _status: "published",
     },
   });
