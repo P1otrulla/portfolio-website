@@ -345,7 +345,7 @@ export function Schematic({ circuits: circuitInputs, className }: SchematicProps
           <rect x={CENTER_X - 10} y="14" width="180" height="40" className="hover-area" />
           <Wire d={SEGMENT.FEED} live flowing={isIntroDone} delaySeconds={0} />
           <text x={CENTER_X + 14} y="34" className={LABEL_CLASS} style={LABEL_STYLE}>
-            {hasThreePhase ? "Zasilanie 4×400 V" : "Zasilanie 230 V"}
+            {hasThreePhase ? "Zasilanie 3×400 V" : "Zasilanie 230 V"}
           </text>
         </g>
 
