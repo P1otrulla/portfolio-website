@@ -1,3 +1,4 @@
+import { DEFAULT_CIRCUITS } from "@/components/sections/schematic/circuit-model";
 import { PROJECT_CATEGORY, type ProjectCategory } from "@/lib/constants";
 
 export interface SeedProject {
@@ -59,6 +60,7 @@ export const SEED_SETTINGS = Object.freeze({
       description: "Sprawdzamy wszystko razem. Dostajesz dokumentację: opis obwodów albo kod z instrukcją.",
     },
   ],
+  schematicCircuits: DEFAULT_CIRCUITS.map((circuit) => ({ ...circuit })),
   passportEnabled: true,
   passportTitle: "Paszport instalacji",
   passportText:

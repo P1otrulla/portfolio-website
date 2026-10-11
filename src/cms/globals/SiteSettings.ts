@@ -2,6 +2,12 @@ import type { Field, GlobalConfig } from "payload";
 import { anyone, isAuthenticated } from "@/cms/access";
 import { revalidateSite } from "@/cms/hooks/revalidate";
 import { GLOBAL } from "@/lib/constants";
+import {
+  CIRCUIT_LABEL_MAX_LENGTH,
+  LOAD_KINDS,
+  LOAD_KIND_LABEL,
+  MAX_CIRCUITS,
+} from "@/components/sections/schematic/circuit-model";
 
 const serviceListField = (name: string, label: string): Field => ({
   name,
@@ -38,6 +44,55 @@ export const SiteSettings: GlobalConfig = {
               },
             },
             { name: "about", type: "textarea", label: "O mnie" },
+          ],
+        },
+        {
+          label: "Schemat",
+          description:
+            "Obwody na interaktywnym schemacie rozdzielnicy w nagłówku strony. Puste = domyślne: gniazda, oświetlenie, indukcja, serwer.",
+          fields: [
+            {
+              name: "schematicCircuits",
+              type: "array",
+              label: "Obwody",
+              labels: { singular: "Obwód", plural: "Obwody" },
+              maxRows: MAX_CIRCUITS,
+              admin: { description: `Maksymalnie ${MAX_CIRCUITS}. Kolejność jak na schemacie, od lewej.` },
+              fields: [
+                {
+                  type: "row",
+                  fields: [
+                    {
+                      name: "kind",
+                      type: "select",
+                      label: "Odbiornik",
+                      required: true,
+                      options: LOAD_KINDS.map((kind) => ({ value: kind, label: LOAD_KIND_LABEL[kind] })),
+                    },
+                    {
+                      name: "label",
+                      type: "text",
+                      label: "Podpis",
+                      required: true,
+                      maxLength: CIRCUIT_LABEL_MAX_LENGTH,
+                    },
+                    {
+                      name: "breaker",
+                      type: "text",
+                      label: "Zabezpieczenie",
+                      required: true,
+                      admin: { placeholder: "np. B16 albo C20 3P" },
+                    },
+                  ],
+                },
+                {
+                  name: "description",
+                  type: "textarea",
+                  label: "Opis po najechaniu",
+                  admin: { description: "Puste = domyślny opis dla tego rodzaju odbiornika." },
+                },
+              ],
+            },
           ],
         },
         {

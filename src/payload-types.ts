@@ -586,6 +586,21 @@ export interface SiteSetting {
    */
   availability?: string | null;
   about?: string | null;
+  /**
+   * Maksymalnie 5. Kolejność jak na schemacie, od lewej.
+   */
+  schematicCircuits?:
+    | {
+        kind: 'sockets' | 'lighting' | 'three-phase' | 'server';
+        label: string;
+        breaker: string;
+        /**
+         * Puste = domyślny opis dla tego rodzaju odbiornika.
+         */
+        description?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   electricalServices?:
     | {
         title: string;
@@ -641,6 +656,15 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   heroLead?: T;
   availability?: T;
   about?: T;
+  schematicCircuits?:
+    | T
+    | {
+        kind?: T;
+        label?: T;
+        breaker?: T;
+        description?: T;
+        id?: T;
+      };
   electricalServices?:
     | T
     | {

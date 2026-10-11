@@ -36,7 +36,7 @@ export function Hero({ settings }: { readonly settings: SiteSetting }) {
       </div>
 
       <div className="relative mx-auto w-full max-w-[540px] rounded-xl border border-rule bg-surface p-3 sm:p-5">
-        <Schematic className="w-full" />
+        <Schematic className="w-full" circuits={settings.schematicCircuits} />
       </div>
     </section>
   );
