@@ -1,0 +1,251 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Paleta oparta na kolorach żył przewodów (IEC 60446):
+ *  N  – niebieski   → akcent „kodu” i linków
+ *  L  – brązowy     → akcent elektryki
+ *  PE – zielono-żółty → jedyny dekoracyjny motyw (pasek ochronny)
+ */
+:root {
+  --paper: #eef1f4;
+  --surface: #ffffff;
+  --ink: #16202c;
+  --ink-soft: #536072;
+  --rule: #cdd5de;
+  --wire-n: #1f57c3;
+  --wire-l: #8a5530;
+  --pe-green: #1b8a45;
+  --pe-yellow: #ebc015;
+  --danger: #b42318;
+  --ok: #1b7a3f;
+  color-scheme: light;
+}
+
+.dark {
+  --paper: #10161d;
+  --surface: #17202a;
+  --ink: #e6ecf2;
+  --ink-soft: #93a1b2;
+  --rule: #283443;
+  --wire-n: #7fa6ff;
+  --wire-l: #d2925f;
+  --pe-green: #2fae5f;
+  --pe-yellow: #f0cd3a;
+  --danger: #ff8a7a;
+  --ok: #5fd08a;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: "Archivo Variable", ui-sans-serif, system-ui, sans-serif;
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-rule: var(--rule);
+  --color-wire-n: var(--wire-n);
+  --color-wire-l: var(--wire-l);
+  --color-pe-green: var(--pe-green);
+  --color-pe-yellow: var(--pe-yellow);
+  --color-danger: var(--danger);
+  --color-ok: var(--ok);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    font-feature-settings: "ss01";
+  }
+  ::selection {
+    background: var(--pe-yellow);
+    color: #16202c;
+  }
+  :focus-visible {
+    outline: 2px solid var(--wire-n);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Nagłówki: szerszy krój Archivo – jak napisy na tabliczkach znamionowych. */
+  .display {
+    font-stretch: 118%;
+    font-weight: 760;
+    letter-spacing: -0.02em;
+    line-height: 1.04;
+  }
+  .heading {
+    font-stretch: 112%;
+    font-weight: 700;
+    letter-spacing: -0.012em;
+    line-height: 1.15;
+  }
+
+  .pe-stripe {
+    background: repeating-linear-gradient(
+      -45deg,
+      var(--pe-green) 0 9px,
+      var(--pe-yellow) 9px 18px
+    );
+  }
+
+  .wire {
+    display: inline-block;
+    width: 1.25rem;
+    height: 3px;
+    border-radius: 2px;
+    vertical-align: middle;
+  }
+  .wire-electrical {
+    background: var(--wire-l);
+  }
+  .wire-software {
+    background: var(--wire-n);
+  }
+
+  .link {
+    color: var(--wire-n);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+  .link:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  /* Treść z edytora Lexical */
+  .prose-content {
+    max-width: 68ch;
+  }
+  .prose-content > * + * {
+    margin-top: 1em;
+  }
+  .prose-content h2,
+  .prose-content h3,
+  .prose-content h4 {
+    font-stretch: 112%;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-top: 1.8em;
+  }
+  .prose-content h2 {
+    font-size: 1.6rem;
+  }
+  .prose-content h3 {
+    font-size: 1.3rem;
+  }
+  .prose-content a {
+    color: var(--wire-n);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .prose-content ul,
+  .prose-content ol {
+    padding-left: 1.4em;
+  }
+  .prose-content ul {
+    list-style: square;
+  }
+  .prose-content ol {
+    list-style: decimal;
+  }
+  .prose-content li + li {
+    margin-top: 0.35em;
+  }
+  .prose-content blockquote {
+    border-left: 3px solid var(--wire-l);
+    padding-left: 1em;
+    color: var(--ink-soft);
+  }
+  .prose-content code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.9em;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+  }
+}
+
+/* ——— Schemat w hero: rysuje się raz po załadowaniu ——— */
+@keyframes trace {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes appear {
+  to {
+    opacity: 1;
+  }
+}
+@keyframes current-flow {
+  0% {
+    offset-distance: 0%;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+
+.schematic .trace {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: trace 0.7s cubic-bezier(0.6, 0, 0.3, 1) forwards;
+  animation-delay: var(--delay, 0s);
+}
+.schematic .symbol {
+  opacity: 0;
+  animation: appear 0.35s ease-out forwards;
+  animation-delay: var(--delay, 0s);
+}
+.schematic .spark {
+  offset-rotate: 0deg;
+  opacity: 0;
+  animation: current-flow 1.6s cubic-bezier(0.5, 0, 0.5, 1) forwards;
+  animation-delay: var(--delay, 0s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .schematic .trace {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+  .schematic .symbol {
+    opacity: 1;
+    animation: none;
+  }
+  .schematic .spark {
+    display: none;
+  }
+}

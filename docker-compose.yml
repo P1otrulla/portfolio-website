@@ -1,0 +1,42 @@
+name: piotrulla-portfolio
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: portfolio
+      POSTGRES_PASSWORD: portfolio
+      POSTGRES_DB: portfolio
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      # Wystawione lokalnie, żeby `npm run dev` mógł używać tej samej bazy.
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U portfolio -d portfolio"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    # Wartości z pliku .env (jeśli istnieje) podstawiają się pod ${...}.
+    environment:
+      DATABASE_URL: postgres://portfolio:portfolio@db:5432/portfolio
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:-lokalny-sekret-tylko-do-podgladu-zmien-na-produkcji}
+      SITE_URL: ${SITE_URL:-http://localhost:3000}
+      GOOGLE_PLACES_API_KEY: ${GOOGLE_PLACES_API_KEY:-}
+      SEED_ON_INIT: ${SEED_ON_INIT:-true}
+    volumes:
+      - media:/app/media
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:
+  media:
