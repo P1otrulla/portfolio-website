@@ -24,6 +24,8 @@ import {
   isBusLive,
   isCircuitLive,
   isEverythingOn,
+  isLoadPowered,
+  hasLightSwitch,
   isRcdFed,
   isThreePhase,
   type CircuitDefinition,
@@ -56,6 +58,9 @@ const BREAKER_TOP = 244;
 const BREAKER_HEIGHT = 40;
 const BREAKER_BOTTOM = BREAKER_TOP + BREAKER_HEIGHT;
 const LOAD_LABEL_Y = 406;
+
+/** Łącznik światła wpięty między wyłącznik nadprądowy a lampę. */
+const LIGHT_SWITCH = { TOP: 300, BOTTOM: 328 } as const;
 
 const LOAD_TOP: Readonly<Record<CircuitDefinition["kind"], number>> = {
   [LOAD_KIND.SOCKETS]: 352,
@@ -340,7 +345,7 @@ export function Schematic({ circuits: circuitInputs, className }: SchematicProps
           <rect x={CENTER_X - 10} y="14" width="180" height="40" className="hover-area" />
           <Wire d={SEGMENT.FEED} live flowing={isIntroDone} delaySeconds={0} />
           <text x={CENTER_X + 14} y="34" className={LABEL_CLASS} style={LABEL_STYLE}>
-            {hasThreePhase ? "Zasilanie 3×230/400 V" : "Zasilanie 230 V"}
+            {hasThreePhase ? "Zasilanie 4×400 V" : "Zasilanie 230 V"}
           </text>
         </g>
 
@@ -413,7 +418,10 @@ export function Schematic({ circuits: circuitInputs, className }: SchematicProps
           const x = circuitX(index, circuits.length);
           const breakerOn = board.breakers[circuit.id] === true;
           const live = isCircuitLive(board, circuit.id);
+          const powered = isLoadPowered(board, circuit);
           const loadTop = LOAD_TOP[circuit.kind];
+          const withSwitch = hasLightSwitch(circuit);
+          const switchOn = board.lightSwitches[circuit.id] === true;
           return (
             <g key={circuit.id}>
               <Wire d={`M${x} ${BUS_Y} V${BREAKER_TOP}`} live={busLive} flowing={isIntroDone} delaySeconds={1.8 + index * 0.1} />
@@ -446,14 +454,42 @@ export function Schematic({ circuits: circuitInputs, className }: SchematicProps
                 <text x={x + 16} y="262" className={LABEL_CLASS} style={SMALL_LABEL_STYLE}>{circuit.breaker}</text>
                 <StateMark on={breakerOn} x={x + 16} y={278} compact />
               </Control>
-              <Wire d={`M${x} ${BREAKER_BOTTOM} V${loadTop}`} live={live} flowing={isIntroDone} delaySeconds={2.4 + index * 0.1} stroke={PHASE} />
+              {withSwitch ? (
+                <>
+                  <Wire d={`M${x} ${BREAKER_BOTTOM} V${LIGHT_SWITCH.TOP}`} live={live} flowing={isIntroDone} delaySeconds={2.4 + index * 0.1} stroke={PHASE} />
+                  <Control
+                    label={`${switchOn ? "Zgaś" : "Zapal"} światło – łącznik obwodu ${circuit.label}`}
+                    hint={ELEMENT_DESCRIPTION.LIGHT_SWITCH}
+                    onHint={setHint}
+                    pressed={switchOn}
+                    onToggle={() => dispatch({ type: "toggle-light-switch", id: circuit.id })}
+                    hitArea={{ x: x - 14, y: LIGHT_SWITCH.TOP - 6, width: 70, height: LIGHT_SWITCH.BOTTOM - LIGHT_SWITCH.TOP + 12 }}
+                    delaySeconds={2.6 + index * 0.1}
+                  >
+                    <circle cx={x} cy={LIGHT_SWITCH.TOP} r="2.2" fill={INK} />
+                    <circle cx={x} cy={LIGHT_SWITCH.BOTTOM} r="2.2" fill={INK} />
+                    <path
+                      className="lever"
+                      d={`M${x} ${LIGHT_SWITCH.BOTTOM} V${LIGHT_SWITCH.TOP + 2}`}
+                      stroke={INK}
+                      strokeWidth={1.75}
+                      style={leverStyle(switchOn ? LEVER_ANGLE.MAIN_CLOSED : LEVER_ANGLE.MAIN_OPEN, x, LIGHT_SWITCH.BOTTOM)}
+                    />
+                    <text x={x + 16} y={LIGHT_SWITCH.TOP + 13} className={LABEL_CLASS} style={SMALL_LABEL_STYLE}>Łącznik</text>
+                    <StateMark on={switchOn} x={x + 16} y={LIGHT_SWITCH.TOP + 27} compact />
+                  </Control>
+                  <Wire d={`M${x} ${LIGHT_SWITCH.BOTTOM} V${loadTop}`} live={powered} flowing={isIntroDone} delaySeconds={2.7 + index * 0.1} stroke={PHASE} />
+                </>
+              ) : (
+                <Wire d={`M${x} ${BREAKER_BOTTOM} V${loadTop}`} live={live} flowing={isIntroDone} delaySeconds={2.4 + index * 0.1} stroke={PHASE} />
+              )}
               {isThreePhase(circuit) && <ThreePhaseMark x={x} y={(BREAKER_BOTTOM + loadTop) / 2} />}
 
               <g className="symbol" style={delay(2.9 + index * 0.1)} {...hintHandlers(circuit.description, setHint)}>
                 <rect x={x - 36} y={loadTop - 8} width="72" height={LOAD_LABEL_Y - loadTop + 14} className="hover-area" />
-                <LoadSymbol circuit={circuit} x={x} live={live} />
+                <LoadSymbol circuit={circuit} x={x} live={powered} />
                 <text x={x} y={LOAD_LABEL_Y} textAnchor="middle" className={LABEL_CLASS} style={SMALL_LABEL_STYLE}>
-                  {circuit.kind === LOAD_KIND.SERVER && !live ? "offline" : circuit.label}
+                  {circuit.kind === LOAD_KIND.SERVER && !powered ? "offline" : circuit.label}
                 </text>
               </g>
             </g>

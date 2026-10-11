@@ -75,6 +75,9 @@ export function buildCircuits(inputs: readonly CircuitInput[] | null | undefined
 
 export const isThreePhase = (circuit: CircuitDefinition): boolean => circuit.kind === LOAD_KIND.THREE_PHASE;
 
+/** Obwody oświetleniowe mają za wyłącznikiem nadprądowym łącznik (włącznik światła). */
+export const hasLightSwitch = (circuit: CircuitDefinition): boolean => circuit.kind === LOAD_KIND.LIGHTING;
+
 /** Opis wyłącznika nadprądowego – litera to charakterystyka, liczba to prąd znamionowy. */
 export function describeBreaker(circuit: CircuitDefinition): string {
   const poles = isThreePhase(circuit) ? "trójbiegunowy wyłącznik nadprądowy" : "wyłącznik nadprądowy";
@@ -85,14 +88,17 @@ export const ELEMENT_DESCRIPTION = Object.freeze({
   FEED: "Przyłącze z licznika. Od tego miejsca zaczyna się Twoja instalacja.",
   MAIN: "Rozłącznik główny odcina całą instalację naraz. Wyłącza się go przed każdą pracą w rozdzielnicy.",
   RCD: "Wyłącznik różnicowoprądowy 30 mA chroni ludzi przed porażeniem. Raz w miesiącu warto nacisnąć na nim przycisk TEST.",
+  LIGHT_SWITCH:
+    "Łącznik oświetlenia, czyli zwykły włącznik światła na ścianie. Przerywa przewód fazowy idący do lampy – przewody przed nim dalej są pod napięciem.",
 });
 
-export type BoardEvent = "short-circuit" | null;
+export type BoardEvent = "short-circuit" | "light-switch" | null;
 
 export interface BoardState {
   readonly mainSwitchOn: boolean;
   readonly rcdOn: boolean;
   readonly breakers: Readonly<Record<string, boolean>>;
+  readonly lightSwitches: Readonly<Record<string, boolean>>;
   readonly lastEvent: BoardEvent;
 }
 
@@ -101,6 +107,9 @@ export function createInitialBoard(circuits: readonly CircuitDefinition[]): Boar
     mainSwitchOn: true,
     rcdOn: true,
     breakers: Object.freeze(Object.fromEntries(circuits.map((circuit) => [circuit.id, true]))),
+    lightSwitches: Object.freeze(
+      Object.fromEntries(circuits.filter(hasLightSwitch).map((circuit) => [circuit.id, true])),
+    ),
     lastEvent: null,
   });
 }
@@ -109,6 +118,7 @@ export type BoardAction =
   | { readonly type: "toggle-main" }
   | { readonly type: "toggle-rcd" }
   | { readonly type: "toggle-breaker"; readonly id: string }
+  | { readonly type: "toggle-light-switch"; readonly id: string }
   | { readonly type: "short-circuit"; readonly id: string }
   | { readonly type: "reset"; readonly initial: BoardState };
 
@@ -120,6 +130,14 @@ export function boardReducer(state: BoardState, action: BoardAction): BoardState
       return { ...state, rcdOn: !state.rcdOn, lastEvent: null };
     case "toggle-breaker":
       return { ...state, breakers: { ...state.breakers, [action.id]: !state.breakers[action.id] }, lastEvent: null };
+    case "toggle-light-switch": {
+      const switchedOn = !state.lightSwitches[action.id];
+      return {
+        ...state,
+        lightSwitches: { ...state.lightSwitches, [action.id]: switchedOn },
+        lastEvent: switchedOn ? null : "light-switch",
+      };
+    }
     case "short-circuit":
       return { ...state, breakers: { ...state.breakers, [action.id]: false }, lastEvent: "short-circuit" };
     case "reset":
@@ -133,8 +151,15 @@ export const isBusLive = (state: BoardState): boolean => state.mainSwitchOn && s
 
 export const isCircuitLive = (state: BoardState, id: string): boolean => isBusLive(state) && state.breakers[id] === true;
 
+/** Czy odbiornik faktycznie dostaje prąd – dla oświetlenia liczy się też łącznik. */
+export const isLoadPowered = (state: BoardState, circuit: CircuitDefinition): boolean =>
+  isCircuitLive(state, circuit.id) && (!hasLightSwitch(circuit) || state.lightSwitches[circuit.id] === true);
+
 export const isEverythingOn = (state: BoardState): boolean =>
-  state.mainSwitchOn && state.rcdOn && Object.values(state.breakers).every(Boolean);
+  state.mainSwitchOn &&
+  state.rcdOn &&
+  Object.values(state.breakers).every(Boolean) &&
+  Object.values(state.lightSwitches).every(Boolean);
 
 export const findShortCircuitTarget = (circuits: readonly CircuitDefinition[]): CircuitDefinition | undefined =>
   circuits.find((circuit) => circuit.kind === LOAD_KIND.SOCKETS);
@@ -155,6 +180,13 @@ export function describeBoard(state: BoardState, circuits: readonly CircuitDefin
   if (state.lastEvent === "short-circuit" && offCircuits.length > 0) {
     const target = findShortCircuitTarget(circuits);
     return `Zwarcie w gniazdku! ${target?.breaker ?? "Wyłącznik"} zadziałał w kilka milisekund i odciął tylko obwód „${target?.label ?? "Gniazda"}”. Bez niego przewód nagrzałby się do czerwoności.`;
+  }
+  const switchedOffLights = circuits.filter(
+    (circuit) => hasLightSwitch(circuit) && !state.lightSwitches[circuit.id] && state.breakers[circuit.id],
+  );
+  if (offCircuits.length === 0 && switchedOffLights.length > 0) {
+    const circuit = switchedOffLights[0];
+    return `Światło zgaszone łącznikiem, ale obwód „${circuit.label}” dalej jest pod napięciem aż do łącznika. Dlatego przed wymianą lampy wyłącza się ${circuit.breaker}, a nie sam włącznik.`;
   }
   if (offCircuits.length === 0) {
     return "Wszystkie obwody pod napięciem. Kliknij wyłącznik, rozłącznik albo RCD – albo najedź na element, żeby zobaczyć, do czego służy.";
